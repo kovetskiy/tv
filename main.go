@@ -42,9 +42,14 @@ func main() {
 		tpl:  tpl,
 	}
 
+	fs := http.FileServer(http.Dir("static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
+	http.HandleFunc("/", handler.ServeHTTP)
+
 	err = http.ListenAndServe(
 		args["-l"].(string),
-		handler,
+		nil,
 	)
 	if err != nil {
 		log.Fatalln(err)

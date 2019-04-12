@@ -1,16 +1,11 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"html/template"
-	"io/ioutil"
-	"math/rand"
 	"net/http"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"strings"
 
 	"github.com/reconquest/executil-go"
 	"github.com/reconquest/hierr-go"
@@ -29,7 +24,7 @@ func (handler *Handler) ServeHTTP(
 ) {
 	writer.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	path := request.URL.Path
+	//path := request.URL.Path
 
 	command := request.URL.Query().Get("command")
 	if command != "" {
@@ -41,29 +36,13 @@ func (handler *Handler) ServeHTTP(
 		}
 	}
 
-	switch {
-	case strings.HasSuffix(path, "/"):
-		handler.HandleDir(writer, request, path)
-
-	default:
-		handler.HandleStart(writer, request, path)
-	}
+	handler.HandleDir(writer, request)
 }
 
 func (handler *Handler) command(cmd string) error {
-	if handler.fifo == "" {
-		return nil
-	}
-
-	if !isFileExists(handler.fifo) {
-		return errors.New("fifo file does not exists")
-	}
-
-	err := ioutil.WriteFile(handler.fifo, []byte(cmd+"\n"), 0644)
+	_, _, err := executil.Run(exec.Command("xdotool", "key", cmd))
 	if err != nil {
-		return hierr.Errorf(
-			err, "unable to write command to file",
-		)
+		return err
 	}
 
 	return nil
@@ -72,26 +51,11 @@ func (handler *Handler) command(cmd string) error {
 func (handler *Handler) HandleDir(
 	writer http.ResponseWriter,
 	request *http.Request,
-	dir string,
 ) {
-	fullpath := filepath.Join(handler.root, dir)
-
-	children, err := ioutil.ReadDir(fullpath)
-	if err != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(writer, hierr.Errorf(
-			err, "unable to readdir: %s", fullpath,
-		))
-		return
-	}
-
-	err = handler.tpl.ExecuteTemplate(
+	err := handler.tpl.ExecuteTemplate(
 		writer,
 		"directory.template",
-		map[string]interface{}{
-			"dir":   strings.TrimSuffix(dir, "/") + "/",
-			"files": children,
-		},
+		nil,
 	)
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
@@ -102,82 +66,28 @@ func (handler *Handler) HandleDir(
 	}
 }
 
-func (handler *Handler) HandleStart(
-	writer http.ResponseWriter,
-	request *http.Request,
-	path string,
-) {
-	if !isFileExists(filepath.Join(handler.root, path)) {
-		writer.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(writer, "file not found\n")
-		return
-	}
+//func mkfifo() (string, error) {
+//    var filename string
+//    for {
+//        filename = filepath.Join(
+//            os.TempDir(),
+//            fmt.Sprintf("tv.fifo.%d", rand.Int()),
+//        )
 
-	err := handler.stop()
-	if err != nil {
-		fmt.Fprintln(writer, hierr.Errorf(
-			err, "unable to stop player",
-		))
-	}
+//        if !isFileExists(filename) {
+//            break
+//        }
+//    }
 
-	fifo, err := mkfifo()
-	if err != nil {
-		fmt.Fprintln(writer, hierr.Errorf(
-			err, "unable to create fifo",
-		))
+//    cmd := exec.Command("mkfifo", filename)
 
-		return
-	}
+//    _, _, err := executil.Run(cmd)
+//    if err != nil {
+//        return "", err
+//    }
 
-	handler.fifo = fifo
-
-	cmd := exec.Command(
-		"mplayer",
-		"-quiet",
-		"-slave",
-		"-noconfig", "all",
-		"-input", "file="+handler.fifo,
-		filepath.Join(handler.root, path),
-	)
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err = cmd.Start()
-	if err != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(writer, hierr.Errorf(
-			err, "unable to start %s", path,
-		))
-		return
-	}
-
-	handler.cmd = cmd
-
-}
-
-func mkfifo() (string, error) {
-	var filename string
-	for {
-		filename = filepath.Join(
-			os.TempDir(),
-			fmt.Sprintf("tv.fifo.%d", rand.Int()),
-		)
-
-		if !isFileExists(filename) {
-			break
-		}
-	}
-
-	cmd := exec.Command("mkfifo", filename)
-
-	_, _, err := executil.Run(cmd)
-	if err != nil {
-		return "", err
-	}
-
-	return filename, nil
-}
+//    return filename, nil
+//}
 
 func (handler *Handler) stop() error {
 	if handler.cmd != nil {
@@ -193,16 +103,16 @@ func (handler *Handler) stop() error {
 		}
 	}
 
-	if handler.fifo != "" && isFileExists(handler.fifo) {
-		err := os.RemoveAll(handler.fifo)
-		if err != nil {
-			return hierr.Errorf(
-				err, "unable to remove fifo",
-			)
-		}
+	//if handler.fifo != "" && isFileExists(handler.fifo) {
+	//    err := os.RemoveAll(handler.fifo)
+	//    if err != nil {
+	//        return hierr.Errorf(
+	//            err, "unable to remove fifo",
+	//        )
+	//    }
 
-		handler.fifo = ""
-	}
+	//    handler.fifo = ""
+	//}
 
 	return nil
 }

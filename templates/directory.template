@@ -1,56 +1,45 @@
+<!DOCTYPE html>
 <html>
 <head>
     <title>TV</title>
-    <style>
-        .button {
-            display: inline-block;
-            padding: 2px;
-            margin: 2px;
-            border: 1px solid black;
-            color: black;
-            text-decoration: none;
-            box-shadow: 0px 0px 1px #000;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="/static/bulma.css">
 </head>
 <body>
-    <a class="button" href="?command=pause">PAUSE</a>
-    <a class="button" href="?command=stop">STOP</a>
-    <br />
-    <a class="button" href="?command=seek -600">SEEK -10MIN</a>
-    <a class="button" href="?command=seek -120">SEEK -2MIN</a>
-    <a class="button" href="?command=seek -10">SEEK -10SEC</a>
-    <a class="button" href="?command=seek +10">SEEK +10SEC</a>
-    <a class="button" href="?command=seek +120">SEEK +2MIN</a>
-    <a class="button" href="?command=seek +600">SEEK +10MIN</a>
-    <br />
-    <a class="button" href="?command=volume -2">VOLUME -2</a>
-    <a class="button" href="?command=volume +2">VOLUME +2</a>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">
+                TV
+                <a class="button is-medium" href="?command=q">Q</a>
+            </h1>
 
-    <br />
-    <a class="button" href="?command=sub_select">NEXT SUBTITLES</a>
-    <a class="button" href="?command=switch_audio">NEXT AUDIO</a>
+            <div style="margin-top: 20px; margin-bottom: 10px">
+                <a class="button is-large is-fullwidth" href="?command=space">⏯️</a>
+            </div>
 
+            <div class="tabs is-fullwidth">
+                <ul>
+                    <li>
+                        <a class="button is-large" href="?command=Left">⏪</a>
+                    </li>
+                    <li>
+                        <a class="button is-large" href="?command=Right">⏩</a>
+                    </li>
+                </ul>
+            </div>
 
-    <ul>
-        <li>
-            <a href="/">DIR: /</a>
-        </li>
-    {{- $dir := .dir }}
-    {{- range $index, $file := .files }}
-        {{- if $file.IsDir }}
-            <li>
-                DIR: <a href="{{ $dir }}{{ $file.Name }}/">{{ $file.Name }}/</a>
-            </li>
-        {{- end }}
-    {{- end }}
-    {{- range $index, $file := .files }}
-        {{- if not $file.IsDir }}
-            <li>
-                FILE: <a href="{{ $dir }}{{ $file.Name }}">{{ $file.Name }}</a>
-            </li>
-        {{- end }}
-    {{- end }}
-    </ul>
+            <div class="tabs is-fullwidth">
+                <ul>
+                    <li>
+                        <a class="button is-large" href="?command=super%2b8">🔉</a>
+                    </li>
+                    <li>
+                        <a class="button is-large" href="?command=super%2b9">🔊</a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </section>
 </body>
 </html>
