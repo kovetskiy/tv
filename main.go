@@ -20,7 +20,7 @@ Usage:
 
 Options:
     -l <address>  Specify address listen to [default: :80]
-    -s <dir>    Specify directory with static [default: static].
+    -s <dir>      Specify directory with static [default: /srv/tv/static].
     -t <dir>      Specify directory with server templates [default: /srv/tv/templates].
     -h --help     Show this screen.
     --version     Show version.
