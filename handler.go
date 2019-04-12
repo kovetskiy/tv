@@ -13,7 +13,6 @@ import (
 )
 
 type Handler struct {
-	root string
 	tpl  *template.Template
 	cmd  *exec.Cmd
 	fifo string

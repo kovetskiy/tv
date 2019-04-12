@@ -20,7 +20,7 @@ Usage:
 
 Options:
     -l <address>  Specify address listen to [default: :80]
-    -d <dir>      Specify directory with video/audio/picture [default: media].
+    -s <dir>    Specify directory with static [default: static].
     -t <dir>      Specify directory with server templates [default: /srv/tv/templates].
     -h --help     Show this screen.
     --version     Show version.
@@ -38,11 +38,10 @@ func main() {
 	}
 
 	handler := &Handler{
-		root: args["-d"].(string),
-		tpl:  tpl,
+		tpl: tpl,
 	}
 
-	fs := http.FileServer(http.Dir("static"))
+	fs := http.FileServer(http.Dir(args["-s"].(string)))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	http.HandleFunc("/", handler.ServeHTTP)
