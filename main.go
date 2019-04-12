@@ -21,7 +21,7 @@ Usage:
 Options:
     -l <address>  Specify address listen to [default: :80]
     -d <dir>      Specify directory with video/audio/picture [default: media].
-    -t <dir>      Specify directory with server templates [default: templates].
+    -t <dir>      Specify directory with server templates [default: /srv/tv/templates].
     -h --help     Show this screen.
     --version     Show version.
 `

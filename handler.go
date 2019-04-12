@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -40,6 +41,7 @@ func (handler *Handler) ServeHTTP(
 }
 
 func (handler *Handler) command(cmd string) error {
+	log.Println(cmd)
 	_, _, err := executil.Run(exec.Command("xdotool", "key", cmd))
 	if err != nil {
 		return err
