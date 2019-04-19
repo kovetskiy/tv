@@ -41,6 +41,11 @@ func (handler *Handler) ServeHTTP(
 
 func (handler *Handler) command(cmd string) error {
 	log.Println(cmd)
+
+	if cmd == "poweroff" {
+		return exec.Command("poweroff").Run()
+	}
+
 	_, _, err := executil.Run(exec.Command("xdotool", "key", cmd))
 	if err != nil {
 		return err
